@@ -56,5 +56,65 @@ namespace MovieOpenCvSharp
 
             vcap.Dispose();//Memory release
         }
+
+        bool isCamActive = false;
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            button2.Enabled = false;
+            isCamActive = true;
+
+            VideoCapture vcam = new VideoCapture((int)numericUpDown1.Value)
+            {
+                // キャプチャする画像のサイズフレームレートの指定
+                FrameWidth = 640,
+                FrameHeight = 480,
+                Fps = 30
+            };
+
+            while (vcam.IsOpened())
+            {
+                Mat mat = new Mat();
+
+                if (vcam.Read(mat))
+                {
+                    if (pictureBox1.Image != null)
+                    {
+                        pictureBox1.Image.Dispose();//Memory release
+                    }
+
+                    if (mat.IsContinuous())
+                    {
+                        pictureBox1.Image = BitmapConverter.ToBitmap(mat);
+                    }
+                    else
+                    {
+                        //break;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+                
+                Application.DoEvents(); // Not recommended
+                Thread.Sleep((int)(1000 / vcam.Fps));
+                mat.Dispose();//Memory release
+
+                if (!isCamActive)
+                {
+                    break;
+                }
+            }
+
+            vcam.Dispose();//Memory release
+
+            button2.Enabled = true;
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            isCamActive = false;
+        }
     }
 }
